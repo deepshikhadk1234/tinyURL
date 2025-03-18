@@ -2,7 +2,6 @@ package com.pideep.tinyurl.controllers;
 
 import com.pideep.tinyurl.service.factory.URLServiceFactory;
 import com.pideep.tinyurl.service.URLServiceInterface;
-import com.pideep.tinyurl.utils.StorageType;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +19,9 @@ public class URLControllerDB {
 
     @PostMapping("/shorten")
     public ResponseEntity<UrlResponse> generateShortURL(
-            @Valid @RequestBody URLRequest request,
-            @RequestParam(defaultValue = "POSTGRES") StorageType storageType) {
+            @Valid @RequestBody URLRequest request) {
         try {
-            URLServiceInterface urlService = urlServiceFactory.getURLServiceType(storageType);
+            URLServiceInterface urlService = urlServiceFactory.getURLService();
             String shortURL = urlService.generateShortURL(request.longURL());
             return ResponseEntity.ok(new UrlResponse(shortURL));
         } catch (IllegalArgumentException e) {
@@ -32,11 +30,9 @@ public class URLControllerDB {
     }
 
     @GetMapping("/{shortURL}")
-    public ResponseEntity<Void> redirectToLongURL(
-            @PathVariable String shortURL,
-            @RequestParam(defaultValue = "POSTGRES") StorageType storageType) {
+    public ResponseEntity<Void> redirectToLongURL(@PathVariable String shortURL) {
         try {
-            URLServiceInterface urlService = urlServiceFactory.getURLServiceType(storageType);
+            URLServiceInterface urlService = urlServiceFactory.getURLService();
             String longURL = urlService.retrieveLongURL(shortURL);
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create(longURL))
