@@ -6,17 +6,20 @@ import com.pideep.tinyurl.utils.validURL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
-
 @Service
-public class URLService {
-    @Autowired
-    private InMemoryURLRepository inMemoryURLRepository;
-    private final String baseURL = "http://localhost:8080/"; //the base URL for the tinyURL service
+public class URLService implements URLServiceInterface { //in-memory
+
+    private final InMemoryURLRepository inMemoryURLRepository;
+    private final String baseURL = "http://localhost:8080/api/v1/"; //the base URL for the tinyURL service
 
 
+    public URLService(InMemoryURLRepository inMemoryURLRepository) {
+        this.inMemoryURLRepository = inMemoryURLRepository;
+    }
+
+    @Override
     public String generateShortURL(String longURL) throws IllegalArgumentException {
-        if(!validURL.isValidURL(longURL)){
+        if (!validURL.isValidURL(longURL)) {
             throw new IllegalArgumentException("Invalid URL");
         }
 
@@ -37,6 +40,7 @@ public class URLService {
         return baseURL + urlMapping.getShortURL();
     }
 
+    @Override
     public String retrieveLongURL(String shortURL) throws IllegalArgumentException {
         URLMapping urlMapping = inMemoryURLRepository.findByShortCode(shortURL);
 
